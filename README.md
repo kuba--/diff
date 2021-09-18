@@ -36,6 +36,7 @@ diff.ReadSignature(signatureReader io.Reader) (*diff.Signature, error)
 func (sig *Signature) Lookup(weak uint32) (strong []byte, offset uint64, blockSize uint32, ok bool)
 ```
 
+
 File spec.:
 ```
 // header
@@ -68,6 +69,7 @@ diff.WriteDelta(signature *diff.Signature, newReader io.Reader, deltaWriter io.W
 diff.ReadDelta(r io.Reader) (delta diff.Delta, err error)
 diff.ReadDeltaInstructionHeader(r io.Reader) (header diff.DeltaInstructionHeader, err error)
 ```
+
 
 File spec.:
 ```
