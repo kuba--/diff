@@ -52,6 +52,11 @@ File spec.:
 
 - Delta
 ```go
+const (
+	FromOld = byte(0x0)
+	FromNew = byte(0x1)
+)
+
 type (
 	Delta = []*DeltaInstruction
 
