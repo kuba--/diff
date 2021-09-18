@@ -48,6 +48,8 @@ File spec.:
 {weak checksum: 4 bytes, strong checksum: StrongSize bytes}
 ```
 
+---
+
 - Delta
 ```go
 type (
@@ -83,6 +85,8 @@ File spec.:
 // data
 ...
 ```
+
+---
 
 - Patch
 ```go
