@@ -10,7 +10,7 @@ import (
 
 func main() {
 	flag.Usage = func() {
-		fmt.Printf("%s signature-file new-file delta-file\n", flag.CommandLine.Name())
+		fmt.Printf("%s sig-file new-file delta-file\n", flag.CommandLine.Name())
 	}
 	flag.Parse()
 	args := flag.Args()

@@ -10,7 +10,7 @@ import (
 
 func main() {
 	flag.Usage = func() {
-		fmt.Printf("%s old-file delta-file new-file\n", flag.CommandLine.Name())
+		fmt.Printf("%s basis-file delta-file recreated-file\n", flag.CommandLine.Name())
 	}
 	flag.Parse()
 	args := flag.Args()
@@ -19,12 +19,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	oldFile, err := os.Open(args[0])
+	basisFile, err := os.Open(args[0])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	defer oldFile.Close()
+	defer basisFile.Close()
 
 	deltaFile, err := os.Open(args[1])
 	if err != nil {
@@ -33,14 +33,14 @@ func main() {
 	}
 	defer deltaFile.Close()
 
-	newFile, err := os.Create(args[2])
+	recreatedFile, err := os.Create(args[2])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	defer newFile.Close()
+	defer recreatedFile.Close()
 
-	if err = diff.Patch(oldFile, deltaFile, newFile); err != nil {
+	if err = diff.Patch(basisFile, deltaFile, recreatedFile); err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}

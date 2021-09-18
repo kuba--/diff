@@ -17,7 +17,7 @@ var (
 func main() {
 	flag.IntVar(&blockSize, "b", 0, "block size")
 	flag.Usage = func() {
-		fmt.Printf("%s [-b block size] old-file signature-file\n", flag.CommandLine.Name())
+		fmt.Printf("%s [-b block size] basis-file sig-file\n", flag.CommandLine.Name())
 	}
 	flag.Parse()
 	args := flag.Args()
@@ -26,15 +26,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	oldFile, err := os.Open(args[0])
+	basisFile, err := os.Open(args[0])
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
-	defer oldFile.Close()
+	defer basisFile.Close()
 
 	if blockSize == 0 {
-		oldInfo, err := oldFile.Stat()
+		oldInfo, err := basisFile.Stat()
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(2)
@@ -49,7 +49,7 @@ func main() {
 	}
 	defer sigFile.Close()
 
-	if _, err = diff.WriteSignature(oldFile, sigFile, uint32(blockSize), strongSize); err != nil {
+	if _, err = diff.WriteSignature(basisFile, sigFile, uint32(blockSize), strongSize); err != nil {
 		fmt.Println(err)
 		os.Exit(2)
 	}
