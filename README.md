@@ -10,7 +10,7 @@ patch(basis-file, delta-file) -> recreated-file
 
 The idea of _rolling checksum_ algorithm (_rollsum_) was taken from [librsync](https://github.com/librsync/librsync).
 
-### API and File Format
+### API & File spec.
 - Signature
 ```go
 type (
@@ -36,6 +36,7 @@ diff.ReadSignature(signatureReader io.Reader) (*diff.Signature, error)
 func (sig *Signature) Lookup(weak uint32) (strong []byte, offset uint64, blockSize uint32, ok bool)
 ```
 
+File spec.:
 ```
 // header
 {block size: 4 bytes, strong checksum size: 1 byte}
@@ -68,6 +69,7 @@ diff.ReadDelta(r io.Reader) (delta diff.Delta, err error)
 diff.ReadDeltaInstructionHeader(r io.Reader) (header diff.DeltaInstructionHeader, err error)
 ```
 
+File spec.:
 ```
 // instruction
 {from: 1 byte, offset: 8 bytes, size: 8 bytes}
