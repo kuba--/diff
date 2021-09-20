@@ -14,15 +14,15 @@ const (
 type (
 	Delta = []*DeltaInstruction
 
+	DeltaInstruction struct {
+		DeltaInstructionHeader
+		Data []byte
+	}
+
 	DeltaInstructionHeader struct {
 		From   byte
 		Offset uint64
 		Size   uint64
-	}
-
-	DeltaInstruction struct {
-		DeltaInstructionHeader
-		Data []byte
 	}
 )
 
