@@ -11,6 +11,15 @@ patch(basis-file, delta-file) -> recreated-file
 The idea of _rolling checksum_ algorithm (_rollsum_) was taken from [librsync](https://github.com/librsync/librsync).
 
 ### API & File spec.
+```go
+package diff
+
+var (
+	ByteOrder = binary.BigEndian
+	NewHash   = md5.New
+)
+```
+
 - Signature
 ```go
 type (
