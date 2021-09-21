@@ -28,7 +28,7 @@ func WriteSignature(basisReader io.Reader, signatureWriter io.Writer, blockSize 
 		return nil, errors.New("block size must be > 0")
 	}
 	if strongSize == 0 {
-		return nil, errors.New("hash size must be > 0")
+		return nil, errors.New("strong size must be > 0")
 	}
 
 	header, err := writeSignatureHeader(signatureWriter, blockSize, strongSize)
