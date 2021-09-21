@@ -37,6 +37,7 @@ func main() {
 	switch {
 	case blockSize < 0:
 		fmt.Println("block size must be > 0")
+		os.Exit(2)
 	case blockSize == 0:
 		oldInfo, err := basisFile.Stat()
 		if err != nil {
