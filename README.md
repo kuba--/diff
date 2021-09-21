@@ -110,7 +110,7 @@ diff.Patch(basisReaderSeeker io.ReadSeeker, deltaReader io.Reader, newWriter io.
 ### Usage
 ```
 go build ./cmd/signature
-./signature [-b block size] old-file signature-file
+./signature [-b block size] [-s strong size] old-file signature-file
 
 go build ./cmd/delta
 ./delta signature-file new-file delta-file
