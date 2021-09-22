@@ -1,9 +1,6 @@
 package diff
 
-const (
-	rollCharOffset   = 31
-	weakChecksumSize = 4
-)
+const rollCharOffset = 31
 
 // checksum32 was taken from librsync:
 // https://github.com/librsync/librsync/blob/master/src/rollsum.c
