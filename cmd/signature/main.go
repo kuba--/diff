@@ -9,6 +9,11 @@ import (
 	"github.com/kuba--/diff"
 )
 
+const (
+	// 64MB
+	maxBlockSize = 64 * 1024 * 1024
+)
+
 var (
 	blockSize  int
 	strongSize int
@@ -18,7 +23,7 @@ func main() {
 	flag.IntVar(&blockSize, "b", 0, "block size")
 	flag.IntVar(&strongSize, "s", 0, "strong size")
 	flag.Usage = func() {
-		fmt.Printf("%s [-b block size] [-s strong size] basis-file sig-file\n", flag.CommandLine.Name())
+		fmt.Printf("%s [-b block size (<= %d)] [-s strong size] basis-file sig-file\n", flag.CommandLine.Name(), maxBlockSize)
 	}
 	flag.Parse()
 	args := flag.Args()
@@ -36,7 +41,7 @@ func main() {
 
 	switch {
 	case blockSize < 0:
-		fmt.Println("block size must be > 0")
+		fmt.Printf("block size must be > 0 <= %d\n", maxBlockSize)
 		os.Exit(2)
 	case blockSize == 0:
 		oldInfo, err := basisFile.Stat()
@@ -44,7 +49,9 @@ func main() {
 			fmt.Println(err)
 			os.Exit(2)
 		}
-		blockSize = int(oldInfo.Size() / 10)
+		if blockSize = int(oldInfo.Size() / 10); blockSize > maxBlockSize {
+			blockSize = maxBlockSize
+		}
 	}
 
 	switch {

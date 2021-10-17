@@ -159,3 +159,41 @@ func TestDeltaAddShiftDelete(t *testing.T) {
 		require.EqualValues(delta[i].DeltaInstructionHeader, in.DeltaInstructionHeader)
 	}
 }
+
+func TestDeltaOneByte(t *testing.T) {
+	require := require.New(t)
+
+	const (
+		strongSize = byte(4)
+		blockSize  = uint32(10)
+
+		oldText = `aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjj`
+		newText = `aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffXfffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjj`
+	)
+	delta := []*DeltaInstruction{
+		{DeltaInstructionHeader: DeltaInstructionHeader{From: FromOld, Offset: 0, Size: 5 * uint64(blockSize)}},
+		{DeltaInstructionHeader: DeltaInstructionHeader{From: FromNew, Offset: 0, Size: uint64(blockSize)}},
+		{DeltaInstructionHeader: DeltaInstructionHeader{From: FromOld, Offset: 6 * uint64(blockSize), Size: 4 * uint64(blockSize)}},
+	}
+
+	oldReader := bytes.NewBufferString(oldText)
+	oldBuffer := bytes.NewBuffer(nil)
+
+	sig, err := WriteSignature(oldReader, oldBuffer, blockSize, strongSize)
+	require.NoError(err)
+
+	newReader := bytes.NewBufferString(newText)
+	deltaBuffer := bytes.NewBuffer(nil)
+
+	err = WriteDelta(sig, newReader, deltaBuffer)
+	require.NoError(err)
+
+	deltaReader := bytes.NewBuffer(deltaBuffer.Bytes())
+	instr, err := ReadDelta(deltaReader)
+	require.NoError(err)
+	require.Len(instr, len(delta))
+
+	for i, in := range instr {
+		require.EqualValues(delta[i].DeltaInstructionHeader, in.DeltaInstructionHeader)
+	}
+}
