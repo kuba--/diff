@@ -34,70 +34,52 @@ func WriteDelta(signature *Signature, newReader io.Reader, deltaWriter io.Writer
 	i := &DeltaInstruction{}
 	for {
 		in, err := rd.ReadByte()
+		eof := err == io.EOF
 		if err != nil {
-			if err == io.EOF {
-				break
+			if !eof {
+				return err
 			}
-			return err
-		}
-		out, overwrote := buf.writeByte(in)
-		if buf.count < buf.size {
-			continue
-		}
-		if overwrote {
-			i.append(deltaWriter, &DeltaInstruction{
-				DeltaInstructionHeader: DeltaInstructionHeader{From: FromNew, Size: uint64(1)},
-				Data:                   []byte{out},
-			})
+			// EOF
+		} else {
+			out, overwrote := buf.writeByte(in)
+			if buf.count < buf.size {
+				continue
+			}
+			if overwrote {
+				if err = i.append(deltaWriter, &DeltaInstruction{
+					DeltaInstructionHeader: DeltaInstructionHeader{From: FromNew, Size: uint64(1)},
+					Data:                   []byte{out},
+				}); err != nil {
+					return err
+				}
+			}
 		}
 
 		weak := buf.checksum32()
 		strong, offset, blocksize, ok := signature.Lookup(weak)
-		// fmt.Printf("LOOKUP(%s):%d => [%v]: Offset:%d, Size:%d\n", buf.bytes(), weak, ok, offset, blocksize)
-
 		if ok {
-			// from old
+			// fmt.Printf("LOOKUP(%x) => [%v]: Offset:%d, Size:%d\n", weak, ok, offset, blocksize)
 			h.Reset()
 			h.Write(buf.bytes())
+			// from old
 			if bytes.Equal(strong, h.Sum(nil)[:signature.StrongSize]) {
-				i.append(deltaWriter, &DeltaInstruction{
+				if err = i.append(deltaWriter, &DeltaInstruction{
 					DeltaInstructionHeader: DeltaInstructionHeader{From: FromOld,
 						Offset: offset,
 						Size:   uint64(blocksize),
 					},
 					Data: []byte{},
-				})
+				}); err != nil {
+					return err
+				}
+				buf.reset()
 			}
-			buf.reset()
+		}
+		if eof {
+			i.writeTo(deltaWriter)
+			break
 		}
 	}
-
-	// handle potential leftovers
-	weak := buf.checksum32()
-	strong, offset, blocksize, ok := signature.Lookup(weak)
-	if ok {
-		// from old
-		h.Reset()
-		h.Write(buf.bytes())
-		if bytes.Equal(strong, h.Sum(nil)[:signature.StrongSize]) {
-			i.append(deltaWriter, &DeltaInstruction{
-				DeltaInstructionHeader: DeltaInstructionHeader{From: FromOld,
-					Offset: offset,
-					Size:   uint64(blocksize),
-				},
-				Data: []byte{},
-			})
-		}
-		buf.reset()
-	}
-
-	for _, b := range buf.bytes() {
-		i.append(deltaWriter, &DeltaInstruction{
-			DeltaInstructionHeader: DeltaInstructionHeader{From: FromNew, Size: uint64(1)},
-			Data:                   []byte{b},
-		})
-	}
-	i.writeTo(deltaWriter)
 
 	return nil
 }
@@ -151,6 +133,7 @@ func (i *DeltaInstruction) append(w io.Writer, next *DeltaInstruction) error {
 		i.Offset = next.Offset
 		i.Size = next.Size
 		i.Data = next.Data
+
 		return nil
 	}
 

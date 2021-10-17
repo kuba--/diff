@@ -74,6 +74,10 @@ func (rb *rollBuffer) writeByte(in byte) (out byte, overwrote bool) {
 }
 
 func (rb *rollBuffer) bytes() []byte {
+	if rb.count == 0 {
+		return nil
+	}
+
 	if rb.count >= rb.size {
 		if rb.pos == 0 {
 			return rb.buf
